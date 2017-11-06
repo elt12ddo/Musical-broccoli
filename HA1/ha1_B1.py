@@ -10,10 +10,10 @@ def findDigit(str):
     mult = 1
     factor = 0
     for i in reversed(range(len(str))):
-        if str[i:i+1] == "X":
+        if str[i] == "X":
             factor=mult
-        if str[i:i+1] != "X":
-            temp = int(str[i:i+1])*mult
+        if str[i] != "X":
+            temp = int(str[i])*mult
             if temp > 9:
                 temp = temp - 9
             sum = sum + temp
