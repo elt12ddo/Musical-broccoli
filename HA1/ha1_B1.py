@@ -18,7 +18,6 @@ def findDigit(str):
                 temp = temp - 9
             sum = sum + temp
         mult = mult%2 + 1
-        #print("Sum: "+repr(sum)+", mult: "+repr(mult)+", factor: "+repr(factor))
     temp = sum
     for j in range(0,10):
         term = j*factor
@@ -29,8 +28,7 @@ def findDigit(str):
            return j
         temp = sum
             
-
-
+        
 a = ["12774212857X4109", "586604X108627571", "7473X86953606632", "4026467X45830632", "20X3092648604969"]
 print("Numbers:")
 for i in range(len(a)):
