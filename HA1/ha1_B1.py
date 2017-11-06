@@ -5,16 +5,6 @@ Created on Mon Nov  6 10:57:29 2017
 @author: Daniel
 """
 
-
-
-
-
-def findXpos(str):
-    for i in range(len(str)):
-        if(str[i:i+1] == "X"):
-            return i
-    return None
-
 def findDigit(str):
     sum = 0
     mult = 1
@@ -42,8 +32,10 @@ def findDigit(str):
 
 
 a = ["12774212857X4109", "586604X108627571", "7473X86953606632", "4026467X45830632", "20X3092648604969"]
+print("Numbers:")
 for i in range(len(a)):
     print(a[i])
 print("****************")
+print("Missing digits:")
 for i in range(len(a)):
     print(findDigit(a[i]), end="")
