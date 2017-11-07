@@ -27,7 +27,7 @@ def MicroMint2(c, u, k, width):
     results = []
     for y in range(0,10): # Make sure we have a decent amount of data to be confident that std is not 0 (and it saves a few cycles in most cases too as there is no evalution here)
         results.append(MicroMint(u, k, c))
-    while((7.32 * numpy.std(results) / (len(results)**0.5)) > width): # As we only need the width of the intervall we do not use the average which is in the formula. As the start/end point of the intervall is equal distance from the average value it, one simply needs to multiply with 2 (3.66*2=7.32) to get the width. 
+    while((7.32 * numpy.std(results) / (len(results)**0.5)) > width): # As we only need the width of the intervall we do not use the average which is in the formula. As the start/end point of the intervall is equal distance from the average value, one simply needs to multiply with 2 (3.66*2=7.32) to get the width. 
         results.append(MicroMint(u, k, c))
     print("----- width: %s -----" % (7.32 * numpy.std(results) / (len(results)**0.5)))
     print("----- %s seconds -----" % (time.time() - start_time))
