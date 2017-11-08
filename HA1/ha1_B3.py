@@ -27,12 +27,31 @@ def p1():
 
 
 
+class Node:
+    def __init__(self, left, right, h):
+        self.left = left
+        self.right = right
+        self.h = h
+
+
+
+
+
 def p2():
     file = open("B3_2.txt","r")
     i = int(file.readline()[:-1])
     j = int(file.readline()[:-1])
     a = file.read().splitlines()
     file.close()
+    if len(a)%2 != 0:
+        a.append(a[-1])
+    
+    
+        
+    
+    
+    
+    
     print(i)
     print(j)
     print(a)
