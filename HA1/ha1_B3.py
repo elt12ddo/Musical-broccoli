@@ -34,6 +34,23 @@ class Node:
         self.h = h
 
 
+def build(nodes):
+    if len(nodes) == 1:
+        #we are done
+        return nodes
+    else: 
+        parents = []
+        for i in range(0,len(nodes),2):
+            left = nodes[i]
+            if i == len(nodes)-1:
+                nodes.append(nodes[-1])
+            right = nodes[i+1]
+            temp = left.h
+            temp2 = right.h
+            temp.extend(temp2)
+            h = bytearray(hashlib.sha1(temp).digest())
+            parents.append(Node(left, right, h))
+        return build(parents)
 
 
 
@@ -43,28 +60,13 @@ def p2():
     j = int(file.readline()[:-1])
     a = file.read().splitlines()
     file.close()
-    if len(a)%2 != 0:
-        a.append(a[-1])
+    nodes = []
+    for i in range(len(a)):
+        nodes.append(Node(None, None, bytearray.fromhex(a[i])))
     
+    root = build(nodes)
+    print(root[0].h.hex())
     
-        
-    
-    
-    
-    
-    print(i)
-    print(j)
-    print(a)
-
-
-
-
-
-
-
-
-
-
 
 
 
