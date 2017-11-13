@@ -9,6 +9,17 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 import secrets
 import hashlib
 
+#As described on Wikipedia
+def invmod(a,n):
+    t, t1 = 1, 0 
+    r, r1 = a, n 
+    while r1: 
+        q = r // r1 
+        t, t1 = t1, t - q * t1 
+        r, r1 = r1, r - q * r1 
+    return t 
+        
+
 class Bank:
     def __init__(self):
         self.generate_keys()
@@ -19,7 +30,7 @@ class Bank:
     def fetch_indices(self,b):
         self.b = b
         self.indices = []
-        print("fetch_indeces")
+        #print("fetch_indeces")
         while(len(self.indices) < len(b)/2):
             k = secrets.randbelow(len(b))
             if(k not in self.indices):
@@ -28,17 +39,15 @@ class Bank:
         return self.indices
     
     def check(self,quads,identity):
-        signs = []
+        sign = 1
         for i in range(len(quads)):
             if(self.B(quads[i],identity) != self.b[self.indices[i]]):
                 return None
             
         for k in range(len(self.b)):
             if(k not in self.indices):
-                #sign = 
-                #signs.append(sign)
-                a = 1 #CONTINUE HERE
-                print(len(self.b)-k,"Bottles of beer")
+                sign *= pow(self.b[k],self.key.private_numbers().d,self.get_n()) 
+        return sign
             
     def B(self,quad,identity):
         p = pow(quad.r,self.get_e(),self.get_n())
@@ -58,26 +67,34 @@ class User:
         self.e = bank.get_e()
         
     def generate_coins(self,k):
-        print("THIS")
+        #print("THIS")
         quads = self.generate_quads(k)
         b_list = []
-        print("HELLO")
+        #print("HELLO")
         
         for i in range(len(quads)):
-            print(i)
+            #print(i)
             b_list.append(self.B(quads[i]))
             
-        print("hello")
+        #print("hello")
         #Time to disturb the sleeping monster (i.e. the BANK!)
         indices = self.bank.fetch_indices(b_list)
         bank_quads = []
         
         for k in range(len(indices)):
             l = indices[k]
-            print(l, len(quads))
+            #print(l, len(quads))
             bank_quads.append(quads[l])
             
-        signs = self.bank.check(bank_quads,self.identity)
+        sign = self.bank.check(bank_quads,self.identity)
+        prod_ri = 1
+        for i in range(len(quads)):
+            if i not in indices:
+                prod_ri *= quads[i].r
+        S = sign * invmod(prod_ri,self.n) % self.n
+        
+        print("This is the signature S:")
+        print(S)
         
     def generate_quads(self,k):
         n = self.n
@@ -120,9 +137,10 @@ def hash_two_inputs(a,b):
 
 
 
-print("first")
+#print("first")
 bank = Bank()
-print("I haz bank")
+#print("I haz bank")
 user = User(bank,1)
-print("I haz the user")
-user.generate_coins(10)
+#print("I haz the user")
+k = 10
+user.generate_coins(k)
