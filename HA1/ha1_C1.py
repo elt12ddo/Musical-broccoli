@@ -12,8 +12,10 @@ import hashlib
 class Bank:
     def __init__(self):
         self.generate_keys()
+        
     def generate_keys(self):
         self.key = rsa.generate_private_key(public_exponent=65537,key_size=1024,backend=default_backend())
+        
     def fetch_indices(self,b):
         self.b = b
         self.indices = []
@@ -22,12 +24,15 @@ class Bank:
             k = secrets.randbelow(len(b))
             if(k not in self.indices):
                 self.indices.append(k)
+                
         return self.indices
+    
     def check(self,quads,identity):
         signs = []
         for i in range(len(quads)):
             if(self.B(quads[i],identity) != self.b[self.indices[i]]):
                 return None
+            
         for k in range(len(self.b)):
             if(k not in self.indices):
                 #sign = 
@@ -38,8 +43,10 @@ class Bank:
     def B(self,quad,identity):
         p = pow(quad.r,self.get_e(),self.get_n())
         return (p*hash_two_inputs(quad.x(),quad.y(identity))) % self.get_n()
+    
     def get_e(self):
         return self.key.private_numbers().public_numbers.e
+    
     def get_n(self):
         return self.key.private_numbers().public_numbers.n
 
@@ -49,23 +56,29 @@ class User:
         self.identity = identity
         self.n = bank.get_n()
         self.e = bank.get_e()
+        
     def generate_coins(self,k):
         print("THIS")
         quads = self.generate_quads(k)
         b_list = []
         print("HELLO")
+        
         for i in range(len(quads)):
             print(i)
             b_list.append(self.B(quads[i]))
+            
         print("hello")
         #Time to disturb the sleeping monster (i.e. the BANK!)
         indices = self.bank.fetch_indices(b_list)
         bank_quads = []
+        
         for k in range(len(indices)):
             l = indices[k]
             print(l, len(quads))
             bank_quads.append(quads[l])
+            
         signs = self.bank.check(bank_quads,self.identity)
+        
     def generate_quads(self,k):
         n = self.n
         quads = []
@@ -76,6 +89,7 @@ class User:
             r = secrets.randbelow(n)
             quads.append(Quadruple(a,c,d,r))
         return quads
+    
     def B(self,quad):
         f = pow(quad.r,self.e,self.n)
         x = quad.x()
@@ -89,8 +103,10 @@ class Quadruple:
         self.c = c
         self.d = d
         self.r = r
+        
     def x(self):
         return hash_two_inputs(self.a,self.c)
+    
     def y(self,identity):
         return hash_two_inputs((self.a)^identity,self.d)
 
