@@ -15,11 +15,6 @@ def find_terrorists(filename, terip, mixip, m):
     set_list = []
     current_set = set()
     for pkt in capfile.packets:
-        #timestamp = pkt.timestamp
-        # all data is ASCII encoded (byte arrays). If we want to compare with strings
-        # we need to decode the byte arrays into UTF8 coded strings
-        #eth_src = pkt.packet.src.decode('UTF8')
-        #eth_dst = pkt.packet.dst.decode('UTF8')
         ip_src = pkt.packet.payload.src.decode('UTF8')
         ip_dst = pkt.packet.payload.dst.decode('UTF8')
         if(ip_src == terip):
@@ -34,13 +29,31 @@ def find_terrorists(filename, terip, mixip, m):
                     if(len(set_list) < m):
                         if(disjoint(set_list,current_set)):
                             set_list.append(current_set)
-                        else:
-                            remove_elements(set_list,current_set)
                     else:
-                        remove_elements(set_list,current_set)
+                        break
                     current_set = set()
                     ter_sent = False
                     mix_sent = False
+   
+    ter_sent = False
+    mix_sent = False
+    for pkt in capfile.packets:
+        ip_src = pkt.packet.payload.src.decode('UTF8')
+        ip_dst = pkt.packet.payload.dst.decode('UTF8')
+        if(ip_src == terip):
+            ter_sent = True
+            mix_sent = False
+        else:
+            if(ter_sent and (ip_src == mixip)):
+                current_set.add(ip_dst)
+                mix_sent = True
+            else:
+                if(mix_sent):
+                    remove_elements(set_list,current_set)
+                    current_set = set()
+                    ter_sent = False
+                    mix_sent = False
+    
     print(set_list)
     total = 0
     for k in set_list:
