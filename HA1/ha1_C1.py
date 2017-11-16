@@ -208,15 +208,5 @@ def hash_two_inputs(a,b):
     return int.from_bytes(hashlib.sha512(a_hash).digest(),'big')
 
 
-"""
-#print("first")
-bank = Bank()
-#print("I haz bank")
-user = User(bank,1)
-#print("I haz the user")
-k = 10
-user.generate_coins(k)
 
-
-"""
 test()
