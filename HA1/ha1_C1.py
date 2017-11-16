@@ -41,9 +41,9 @@ def test():
             f *= hash_two_inputs(list[j][0],temp)
             f %= b.get_n()
     sign_pow_e = pow(S, b.get_e(), b.get_n())
-    print("Bobs calculated signature")
+    print("Bobs calculated signature:")
     print(f)
-    print("The sign provided by Alice to the power of the public exponent")
+    print("The sign provided by Alice to the power of the public exponent:")
     print(sign_pow_e)
     if f == sign_pow_e:
         print("Success")
@@ -51,17 +51,23 @@ def test():
         print("Error")
     
     #Now check double spending
+    print("**********")
+    print("Check double spending")
     vector2 = vector
     if vector2[0] == 1:
         vector2[0] = 0
     else:
-        vector[0] = 1
+        vector2[0] = 1
     list2 = alice.verify(vector2)
     alice_id = list2[0][1]^list[0][1]
     print("Alice id:")
     print(id)
     print("Calculated id:")
     print(alice_id)
+    if id == alice_id:
+        print("Success")
+    else:
+        print("Error")
     
 
 class Bank:
