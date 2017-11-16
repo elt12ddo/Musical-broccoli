@@ -8,6 +8,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import rsa
 import secrets
 import hashlib
+import random
 
 #As described on Wikipedia
 def invmod(a,n):
@@ -18,14 +19,57 @@ def invmod(a,n):
         t, t1 = t1, t - q * t1 
         r, r1 = r1, r - q * r1 
     return t 
-        
+
+def test():
+    b = Bank()
+    id = 123456
+    alice = User(b,id)
+    k = 20
+    S = alice.generate_coins(k)
+    vector = []
+    for i in range(k):
+        vector.append(random.randint(0,1))
+    list = alice.verify(vector)
+    f = 1
+    for j in range(k):
+        if vector[j] == 1:
+            temp = hash_two_inputs(list[j][1],list[j][2])
+            f *= hash_two_inputs(temp, list[j][0])
+            f %= b.get_n()
+        else:
+            temp = hash_two_inputs(list[j][1],list[j][2])
+            f *= hash_two_inputs(list[j][0],temp)
+            f %= b.get_n()
+    sign_pow_e = pow(S, b.get_e(), b.get_n())
+    print("Bobs calculated signature")
+    print(f)
+    print("The sign provided by Alice to the power of the public exponent")
+    print(sign_pow_e)
+    if f == sign_pow_e:
+        print("Success")
+    else:
+        print("Error")
+    
+    #Now check double spending
+    vector2 = vector
+    if vector2[0] == 1:
+        vector2[0] = 0
+    else:
+        vector[0] = 1
+    list2 = alice.verify(vector2)
+    alice_id = list2[0][1]^list[0][1]
+    print("Alice id:")
+    print(id)
+    print("Calculated id:")
+    print(alice_id)
+    
 
 class Bank:
     def __init__(self):
         self.generate_keys()
         
     def generate_keys(self):
-        self.key = rsa.generate_private_key(public_exponent=65537,key_size=1024,backend=default_backend())
+        self.key = rsa.generate_private_key(public_exponent=65537,key_size=2048,backend=default_backend())
         
     def fetch_indices(self,b):
         self.b = b
@@ -88,13 +132,16 @@ class User:
             
         sign = self.bank.check(bank_quads,self.identity)
         prod_ri = 1
+        self.sign_quads = []
         for i in range(len(quads)):
             if i not in indices:
                 prod_ri *= quads[i].r
-        S = sign * invmod(prod_ri,self.n) % self.n
+                self.sign_quads.append(quads[i])
+        self.S = sign * invmod(prod_ri,self.n) % self.n
         
         print("This is the signature S:")
-        print(S)
+        print(self.S)
+        return self.S
         
     def generate_quads(self,k):
         n = self.n
@@ -113,6 +160,25 @@ class User:
         y = quad.y(self.identity)
         g = hash_two_inputs(x,y)
         return (f*g) % self.n
+    
+    def verify(self,vector):
+        l = []
+        for i in range(len(vector)):
+            if vector[i] == 1:
+                temp = []
+                temp_quad = self.sign_quads[i]
+                temp.append(temp_quad.y(self.identity))
+                temp.append(temp_quad.a)
+                temp.append(temp_quad.c)
+                l.append(temp)
+            else:
+                temp = []
+                temp_quad = self.sign_quads[i]
+                temp.append(temp_quad.x())
+                temp.append((temp_quad.a)^(self.identity))
+                temp.append(temp_quad.d)
+                l.append(temp)
+        return l
 
 class Quadruple:
     def __init__(self,a,c,d,r):
@@ -136,7 +202,7 @@ def hash_two_inputs(a,b):
     return int.from_bytes(hashlib.sha512(a_hash).digest(),'big')
 
 
-
+"""
 #print("first")
 bank = Bank()
 #print("I haz bank")
@@ -144,3 +210,7 @@ user = User(bank,1)
 #print("I haz the user")
 k = 10
 user.generate_coins(k)
+
+
+"""
+test()
