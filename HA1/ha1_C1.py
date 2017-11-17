@@ -10,15 +10,6 @@ import secrets
 import hashlib
 import random
 
-#As described on Wikipedia
-def invmod(a,n):
-    t, t1 = 1, 0 
-    r, r1 = a, n 
-    while r1: 
-        q = r // r1 
-        t, t1 = t1, t - q * t1 
-        r, r1 = r1, r - q * r1 
-    return t 
 
 def test():
     b = Bank()
@@ -69,6 +60,17 @@ def test():
     else:
         print("Error")
     
+    
+    
+#As described on Wikipedia
+def invmod(a,n):
+    t, t1 = 1, 0 
+    r, r1 = a, n 
+    while r1: 
+        q = r // r1 
+        t, t1 = t1, t - q * t1 
+        r, r1 = r1, r - q * r1 
+    return t 
 
 class Bank:
     def __init__(self):
@@ -80,7 +82,6 @@ class Bank:
     def fetch_indices(self,b):
         self.b = b
         self.indices = []
-        #print("fetch_indeces")
         while(len(self.indices) < len(b)/2):
             k = secrets.randbelow(len(b))
             if(k not in self.indices):
@@ -117,25 +118,21 @@ class User:
         self.e = bank.get_e()
         
     def generate_coins(self,k):
-        #print("THIS")
         quads = self.generate_quads(k)
         b_list = []
-        #print("HELLO")
         
         for i in range(len(quads)):
-            #print(i)
             b_list.append(self.B(quads[i]))
             
-        #print("hello")
-        #Time to disturb the sleeping monster (i.e. the BANK!)
+        #Time to get indices from the bank
         indices = self.bank.fetch_indices(b_list)
         bank_quads = []
         
         for k in range(len(indices)):
             l = indices[k]
-            #print(l, len(quads))
             bank_quads.append(quads[l])
-            
+        
+        #send requested quads to bank
         sign = self.bank.check(bank_quads,self.identity)
         prod_ri = 1
         self.sign_quads = []
