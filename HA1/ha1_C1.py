@@ -15,7 +15,7 @@ def test():
     b = Bank()
     id = 123456
     alice = User(b,id)
-    k = 20
+    k = 100
     S = alice.generate_coins(k)
     vector = []
     for i in range(k):
@@ -34,7 +34,7 @@ def test():
     sign_pow_e = pow(S, b.get_e(), b.get_n())
     print("Bobs calculated signature:")
     print(f)
-    print("The sign provided by Alice to the power of the public exponent:")
+    print("The sign provided by Alice to the power of the banks public exponent:")
     print(sign_pow_e)
     if f == sign_pow_e:
         print("Success")
@@ -72,6 +72,10 @@ def invmod(a,n):
         r, r1 = r1, r - q * r1 
     return t 
 
+
+'''
+Class representing the bank with methods for doing a coin generation
+'''
 class Bank:
     def __init__(self):
         self.generate_keys()
@@ -110,6 +114,9 @@ class Bank:
     def get_n(self):
         return self.key.private_numbers().public_numbers.n
 
+'''
+Class simulating a user, includes methods for generating coins and verify them.
+'''
 class User:
     def __init__(self, bank, identity):
         self.bank = bank
@@ -183,6 +190,9 @@ class User:
                 l.append(temp)
         return l
 
+'''
+Small class for holding quadruple data and calculating x and y.
+'''
 class Quadruple:
     def __init__(self,a,c,d,r):
         self.a = a
@@ -196,6 +206,9 @@ class Quadruple:
     def y(self,identity):
         return hash_two_inputs((self.a)^identity,self.d)
 
+'''
+Implementation of a two input hash function based on sha512. used as both h and f in this implementation
+'''
 def hash_two_inputs(a,b):
     a_bytes = a.to_bytes((a.bit_length()+7)//8, 'big')
     b_bytes = b.to_bytes((b.bit_length()+7)//8, 'big')
@@ -203,7 +216,5 @@ def hash_two_inputs(a,b):
     b_hash = hashlib.sha512(b_bytes).digest()
     a_hash.extend(b_hash)
     return int.from_bytes(hashlib.sha512(a_hash).digest(),'big')
-
-
 
 test()
