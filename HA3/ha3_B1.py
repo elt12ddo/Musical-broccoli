@@ -28,34 +28,43 @@ def hash(v, k, X):
 
 
 def find_other_commit_prob(commit,v,X):
-    i = 0
     assertion = commit+1
+    k = 0
     while commit != assertion:
-        k = random.randint(0,65535)
         assertion = hash(v, k, X)
-        i += 1
-    return 1/i
+        if k >= 65535:
+            return False
+        k += 1
+    return True
 
 
 
 start_time = time.time()
-t=20
-h=150
+print(time.ctime(time.time()))
+t=30
+h=100
 X = []
 v = 1
 other_v = 0
 y = []
 for i in range(t):
     X.append(i)
-    
-    k = random.randint(0,65535)#65535 = 2**16 -1
-    commit = hash(v, k, i)
     prob = 0
+    
     for j in range(h):
-        prob += find_other_commit_prob(commit,other_v,i)
+        k = random.randint(0,65535)#65535 = 2**16 -1
+        commit = hash(v, k, i)
+        temp = find_other_commit_prob(commit,other_v,i)
+        if temp:
+            prob += 1
     y.append(prob/h)
     
-
+plt.figure(1)
+plt.plot(X,y,'ro')
 plt.plot(X,y)
+plt.xlabel('X values')
+plt.ylabel('Probability')
+plt.title('Probability of breaking the scheme')
+plt.show()
 print("----- %s seconds -----" % (time.time() - start_time))
     
