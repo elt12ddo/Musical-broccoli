@@ -28,7 +28,6 @@ def hash(v, k, X):
 
 
 def find_v(commit,X):
-    assertion = commit+1
     V_0 = False
     V_1 = False
     for k in range(65535+1):
@@ -71,6 +70,6 @@ plt.plot(X,y,'ro')
 plt.plot(X,y)
 plt.xlabel('X values')
 plt.ylabel('Probability')
-plt.title('Probability of breaking the consealing property')
+plt.title('Probability of breaking the concealing property')
 plt.show()
 print("----- %s seconds -----" % (time.time() - start_time))
