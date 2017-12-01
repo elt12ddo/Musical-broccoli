@@ -28,7 +28,7 @@ def hash(v, k, X):
 
 
 def find_other_commit(commit,v,X):
-    assertion = commit+1
+    assertion = commit+1 #to get at least one iteration
     k = 0
     while commit != assertion:
         assertion = hash(v, k, X)
