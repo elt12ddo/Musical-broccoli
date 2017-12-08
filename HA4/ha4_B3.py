@@ -31,9 +31,8 @@ def I2OSP(x, xLen):
 def OAEP_ENCODE(M, seed, L=''):
     hLen = 20
     k = 128
-    M = bytes.fromhex(M)
     L = bytes.fromhex(L)
-    mLen = len(M)
+    mLen = len(M)//2
     lLen =len(L)
     
     
@@ -41,22 +40,21 @@ def OAEP_ENCODE(M, seed, L=''):
         raise ValueError("label too long")
     if(mLen >  k - (2*hLen) - 2):
         raise ValueError("message too long")
-    lHash = hashlib.sha1(L).digest()
+    lHash = hashlib.sha1(L).hexdigest()
     
-    PS = b'\x00' * (k - mLen - 2 * hLen - 2)
+    PS = '00' * (k - mLen - 2 * hLen - 2)
     
-    DB = int.from_bytes(lHash + PS + b'\x01' + M, byteorder='big')
+    DB = lHash + PS + '01' + M
     
-    dbMask = int(MGF1(seed, k - hLen - 1),16)
+    dbMask = MGF1(seed, k - hLen - 1)
     
-    maskedDB = DB^dbMask
+    maskedDB = XOR(DB,dbMask)
     
-    seedMask = int(MGF1(hex(maskedDB)[2:], hLen),16)
+    seedMask = MGF1(maskedDB, hLen)
     
-    maskedSeed = int(seed,16)^seedMask
+    maskedSeed = XOR(seed, seedMask)
     
-    EM = '00' + hex(maskedSeed)[2:].zfill(hLen*2) + hex(maskedDB)[2:] # I do not know if I should do some more zfills (the int conversions removes leading zeroes), but this solved the problem
-    
+    EM = '00' + maskedSeed + maskedDB
     return EM
 
 def OAEP_DECODE(EM, L=''):
@@ -67,14 +65,14 @@ def OAEP_DECODE(EM, L=''):
         raise ValueError("decryption error")
     L = bytes.fromhex(L)
     lHash = hashlib.sha1(L).hexdigest()
-    maskedSeed = EM[2:(hLen*2)+2]#+2
-    maskedDB = EM[(hLen*2)+2:]#+2
+    maskedSeed = EM[2:(hLen*2)+2]
+    maskedDB = EM[(hLen*2)+2:]
     
     seedMask = MGF1(maskedDB, hLen)
-    seed = hex(int(maskedSeed,16)^int(seedMask,16))[2:].zfill(max(len(maskedSeed),len(seedMask)))
+    seed = XOR2(maskedSeed, seedMask)
     
     dbMask = MGF1(seed, k - hLen - 1)
-    DB = hex(int(maskedDB,16)^int(dbMask,16))[2:].zfill(max(len(maskedDB),len(dbMask)))
+    DB = XOR(maskedDB, dbMask)
     lHash2 = DB[:hLen*2] # *2 as hLen is for bytes not hex digits
     
     if(lHash != lHash2):
@@ -92,8 +90,11 @@ def OAEP_DECODE(EM, L=''):
     M = temp[t+2:]
     return M
 
-def XOR(a,b):
+def XOR(a,b): # a.k.a. the nightmare code remover
     return hex(int(a,16)^int(b,16))[2:].zfill(max(len(a),len(b)))
+
+def XOR2(a,b): # Now without zfill, because MGF1 in decode do NOT like leading zeroes apparantly
+    return hex(int(a,16)^int(b,16))[2:]
 
 M = 'fd5507e917ecbe833878'
 seed = '1e652ec152d0bfcd65190ffc604c0933d0423381'
@@ -102,13 +103,10 @@ M2 = 'c107782954829b34dc531c14b40e9ea482578f988b719497aa0687'
 seed2 = '1e652ec152d0bfcd65190ffc604c0933d0423381'
 EM2 = '0063b462be5e84d382c86eb6725f70e59cd12c0060f9d3778a18b7aa067f90b2178406fa1e1bf77f03f86629dd5607d11b9961707736c2d16e7c668b367890bc6ef1745396404ba7832b1cdfb0388ef601947fc0aff1fd2dcd279dabde9b10bfc51efc06d40d25f96bd0f4c5d88f32c7d33dbc20f8a528b77f0c16a7b4dcdd8f'
 
-#print(OAEP_ENCODE('c107782954829b34dc531c14b40e9ea482578f988b719497aa0687','1e652ec152d0bfcd65190ffc604c0933d0423381'))
-#print(OAEP_DECODE(OAEP_ENCODE(M,seed)))
-#print(OAEP_DECODE('0063b462be5e84d382c86eb6725f70e59cd12c0060f9d3778a18b7aa067f90b2178406fa1e1bf77f03f86629dd5607d11b9961707736c2d16e7c668b367890bc6ef1745396404ba7832b1cdfb0388ef601947fc0aff1fd2dcd279dabde9b10bfc51efc06d40d25f96bd0f4c5d88f32c7d33dbc20f8a528b77f0c16a7b4dcdd8f'))
-#print(OAEP_DECODE(OAEP_ENCODE('aa','aa')))
-#print(OAEP_DECODE('0000255975c743f5f11ab5e450825d93b52a160aeef9d3778a18b7aa067f90b2178406fa1e1bf77f03f86629dd5607d11b9961707736c2d16e7c668b367890bc6ef1745396404ba7832b1cdfb0388ef601947fc0aff1fd2dcd279dabde9b10bfc51f40e13fb29ed5101dbcb044e6232e6371935c8347286db25c9ee20351ee82'))
+print(OAEP_DECODE(OAEP_ENCODE(M,seed)))
+print(OAEP_DECODE(OAEP_ENCODE('aa','aa')))
 
-#print(OAEP_DECODE(OAEP_ENCODE(M2,seed2)))
+print(OAEP_DECODE(OAEP_ENCODE(M2,seed2)))
 
-#print(OAEP_ENCODE(M2,seed2))
+print(OAEP_ENCODE(M2,seed2))
 print(OAEP_DECODE(EM2))
