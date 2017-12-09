@@ -15,8 +15,6 @@ def invmod(a,n):
         r, r1 = r1, r - q * r1 
     return t 
 
-
-
 soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  
 soc.connect(("eitn41.eit.lth.se", 1337))
 
@@ -32,7 +30,7 @@ g = 2
 ## receive g**x1
 # receive the hex-string, decode, and remove trailing '\n'
 g_x1 = soc.recv(4096).decode('utf8').strip()
-print ('g**x1:', g_x1)
+#print ('g**x1:', g_x1)
 # interpret as a number
 g_x1 = int(g_x1, 16)
 
@@ -45,7 +43,10 @@ g_x2_str = format(g_x2, 'x')
 # send it
 soc.send(g_x2_str.encode('utf8'))
 # read the ack/nak. This should yield a nak due to x2 being 0
-print ('\nsent g_x2:', soc.recv(4096).decode('utf8').strip())
+response = soc.recv(4096).decode('utf8').strip()
+if response != "ack":
+    raise ValueError("Error in communication")
+print ('\nsent g_x2:', response)
 # calculate the secret
 secret = pow(g_x1,x2,p)
 
@@ -55,7 +56,7 @@ secret = pow(g_x1,x2,p)
 
 # receive g**a2
 g_a2 = soc.recv(4096).decode('utf8').strip()
-print ('g**a2:', g_a2)
+#print ('g**a2:', g_a2)
 # interpret as a number
 g_a2 = int(g_a2, 16)
 
@@ -67,11 +68,14 @@ g_b2_str = format(g_b2, 'x')
 
 soc.send(g_b2_str.encode('utf8'))
 
-print ('\nsent g_b2:', soc.recv(4096).decode('utf8').strip())
+response = soc.recv(4096).decode('utf8').strip()
+if response != "ack":
+    raise ValueError("Error in communication")
+print ('\nsent g_b2:', response)
 
 # receive g**a3
 g_a3 = soc.recv(4096).decode('utf8').strip()
-print ('g**a3:', g_a3)
+#print ('g**a3:', g_a3)
 # interpret as a number
 g_a3 = int(g_a3, 16)
 
@@ -83,7 +87,10 @@ g_b3_str = format(g_b3, 'x')
 
 soc.send(g_b3_str.encode('utf8'))
 
-print ('\nsent g_b3:', soc.recv(4096).decode('utf8').strip())
+response = soc.recv(4096).decode('utf8').strip()
+if response != "ack":
+    raise ValueError("Error in communication")
+print ('\nsent g_b3:', response)
 
 # calculate g_2 and g_3
 g_2 = pow(g_a2, b2, p)
@@ -105,7 +112,7 @@ Q_b = pow(g, b, p) * pow(g_2, y, p) % p
 
 # receive P_a
 P_a = soc.recv(4096).decode('utf8').strip()
-print ('P_a:', P_a)
+#print ('P_a:', P_a)
 # interpret as a number
 P_a = int(P_a, 16)
 
@@ -115,12 +122,14 @@ P_b_str = format(P_b, 'x')
 
 soc.send(P_b_str.encode('utf8'))
 
-print ('\nsent P_b:', soc.recv(4096).decode('utf8').strip())
-
+response = soc.recv(4096).decode('utf8').strip()
+if response != "ack":
+    raise ValueError("Error in communication")
+print ('\nsent P_b:', response)
 
 # receive Q_a
 Q_a = soc.recv(4096).decode('utf8').strip()
-print ('Q_a:', Q_a)
+#print ('Q_a:', Q_a)
 # interpret as a number
 Q_a = int(Q_a, 16)
 
@@ -130,12 +139,14 @@ Q_b_str = format(Q_b, 'x')
 
 soc.send(Q_b_str.encode('utf8'))
 
-print ('\nsent Q_b:', soc.recv(4096).decode('utf8').strip())
-
+response = soc.recv(4096).decode('utf8').strip()
+if response != "ack":
+    raise ValueError("Error in communication")
+print ('\nsent Q_b:', response)
 
 # receive R_a
 R_a = soc.recv(4096).decode('utf8').strip()
-print ('R_a:', R_a)
+#print ('R_a:', R_a)
 # interpret as a number
 R_a = int(R_a, 16)
 
@@ -149,10 +160,15 @@ R_b_str = format(R_b, 'x')
 
 soc.send(R_b_str.encode('utf8'))
 
-print ('\nsent R_b:', soc.recv(4096).decode('utf8').strip())
+response = soc.recv(4096).decode('utf8').strip()
+if response != "ack":
+    raise ValueError("Error in communication")
+print ('\nsent R_b:', response)
 
-print ('\nAuthentication:', soc.recv(4096).decode('utf8').strip())
-
+response = soc.recv(4096).decode('utf8').strip()
+if response != "ack":
+    raise ValueError("Error in communication")
+print ('\nAuthentication:', response)
 
 msg = '1337'
 enc_msg = int(msg, 16) ^ secret
