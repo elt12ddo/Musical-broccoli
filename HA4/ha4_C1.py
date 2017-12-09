@@ -170,7 +170,14 @@ if response != "ack":
     raise ValueError("Error in communication")
 print ('\nAuthentication:', response)
 
-msg = '1337'
+
+
+##########################
+#### Msg interchange #####
+##########################
+
+
+msg = '0123456789abcdef'
 enc_msg = int(msg, 16) ^ secret
 
 # send enc_msg
