@@ -12,15 +12,13 @@ def DER_encode(a):
     
     #begin magic
     temp = bin(int(data[0],16))[2:].zfill(4)
-    #temp = bin(a)[2:]
-    print(temp)
     if temp[0] == '1':
         data = '00'+data
     #end magic
 
     if(len(data) % 2 == 1):
         data = '0' + data
-    print("IT WILL NOT WORK FOR EVERYTHING")
+    print("IT WILL NOT WORK FOR EVERYTHING (YES IT WILL!)")
     return '02' + getLengthString(len(data)//2) + data
     
 def getLengthString(a):
