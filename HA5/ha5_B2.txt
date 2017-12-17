@@ -1,0 +1,7 @@
+cms -decrypt -in mail1.msg -out mail1.txt  -recip certreceiver.pem -inkey keyreceiver.pem -CAfile CAcert.pem
+cms -decrypt -in mail2.msg -out mail2.txt  -recip certreceiver.pem -inkey keyreceiver.pem -CAfile CAcert.pem
+cms -decrypt -in mail3.msg -out mail3.txt  -recip certreceiver.pem -inkey keyreceiver.pem -CAfile CAcert.pem
+
+cms -digest_verify -in mail1.txt
+cms -digest_verify -in mail2.txt
+cms -digest_verify -in mail3.txt
